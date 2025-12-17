@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Health Insurance Dashboard</title>
+    <link rel="stylesheet" href="style.css"> </head>
+<body>
+
+    <header>
+        <h1>Live Insurance Options</h1>
+        <p>Data synced directly from our Google Sheet records.</p>
+    </header>
+
+    <main class="plan-container" id="insurance-plans">
+        <p>Loading plans...</p>
+    </main>
+
+    <script>
+        // Replace this URL with your published Google Sheet CSV link
+        const SHEET_URL = 'YOUR_GOOGLE_SHEET_CSV_EXPORT_URL_HERE';
+
+        async function loadPlans() {
+            try {
+                const response = await fetch(SHEET_URL);
+                const data = await response.text();
+                
+                // Simple CSV Parser
+                const rows = data.split('\n').slice(1); // Skip header row
+                const container = document.getElementById('insurance-plans');
+                container.innerHTML = ''; // Clear loading text
+
+                rows.forEach(row => {
+                    const columns = row.split(',');
+                    if (columns.length < 2) return;
+
+                    const [name, price, deductible, f1, f2, f3] = columns;
+
+                    // Create Card HTML
+                    const card = `
+                        <div class="plan-card">
+                            <div class="plan-header">
+                                <h2>${name}</h2>
+                                <p class="price">$${price}<span>/mo</span></p>
+                            </div>
+                            <ul class="features">
+                                <li><strong>$${deductible}</strong> Deductible</li>
+                                <li>${f1}</li>
+                                <li>${f2}</li>
+                                <li>${f3}</li>
+                            </ul>
+                            <a href="#" class="cta-button">Select Plan</a>
+                        </div>
+                    `;
+                    container.innerHTML += card;
+                });
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                document.getElementById('insurance-plans').innerHTML = '<p>Error loading data.</p>';
+            }
+        }
+
+        loadPlans();
+    </script>
+</body>
+</html>
